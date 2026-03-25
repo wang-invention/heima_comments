@@ -37,6 +37,7 @@ public class SeckillVoucher implements Serializable {
      */
     private Integer stock;
 
+
     /**
      * 创建时间
      */

@@ -46,8 +46,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
     @Override
     public Shop queryById(Long id) {
-        return cacheClient.queryByIdWithLogicExpire(RedisConstants.CACHE_SHOP_KEY, RedisConstants.LOCK_SHOP_KEY, id,
-                Shop.class, this::preloadShopById, 10L, TimeUnit.SECONDS);
+        return queryByIdWithRedis(id);
     }
 
 
