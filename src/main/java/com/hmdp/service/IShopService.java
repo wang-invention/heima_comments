@@ -1,6 +1,7 @@
 package com.hmdp.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -28,4 +29,14 @@ public interface IShopService extends IService<Shop> {
     void updateShop(Shop shop);
 
     Page<Shop> queryShopPageByType(Integer typeId, Integer current);
+
+    /**
+     *  根据商铺类型分页查询商铺信息
+     * @param typeId
+     * @param current
+     * @param x
+     * @param y
+     * @return
+     */
+    Result queryShopByType(Integer typeId, Integer current, Double x, Double y);
 }

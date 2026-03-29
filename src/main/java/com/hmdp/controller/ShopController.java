@@ -2,20 +2,14 @@ package com.hmdp.controller;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.hmdp.service.IShopService;
-import com.hmdp.utils.RedisConstants;
 import com.hmdp.utils.SystemConstants;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -31,8 +25,6 @@ public class ShopController {
 
     @Resource
     public IShopService shopService;
-
-
 
     /**
      * 根据id查询商铺信息
@@ -83,12 +75,15 @@ public class ShopController {
     @GetMapping("/of/type")
     public Result queryShopByType(
             @RequestParam("typeId") Integer typeId,
-            @RequestParam(value = "current", defaultValue = "1") Integer current
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam(value = "x") Double x,
+            @RequestParam(value = "y") Double y
+
     ) {
 
         // 真正的后端分页 + 分页缓存
-        Page<Shop> page = shopService.queryShopPageByType(typeId, current);
-        return Result.ok(page);
+        return shopService.queryShopByType(typeId, current, x, y);
+
     }
 
     /**
