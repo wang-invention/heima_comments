@@ -83,5 +83,30 @@ class HmDianPingApplicationTests {
         }
     }
 
+    @Test
+    void textHyperLogLog() {
+        int batchSize = 1000; // 每1000条提交一次
+        String[] batch = new String[batchSize];
+        int idx = 0;
 
+        for (int i = 0; i < 1000000; i++) {
+            batch[idx++] = "user_" + i;
+
+            // 满了就提交
+            if (idx == batchSize) {
+                stringRedisTemplate.opsForHyperLogLog().add("hl1", batch);
+                idx = 0; // 重置
+            }
+        }
+
+        // 最后不足一批的提交
+        if (idx > 0) {
+            String[] lastBatch = new String[idx];
+            System.arraycopy(batch, 0, lastBatch, 0, idx);
+            stringRedisTemplate.opsForHyperLogLog().add("hl1", lastBatch);
+        }
+
+        Long count = stringRedisTemplate.opsForHyperLogLog().size("hl1");
+        System.out.println("最终统计：" + count);
+    }
 }

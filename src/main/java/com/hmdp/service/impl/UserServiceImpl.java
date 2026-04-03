@@ -13,6 +13,7 @@ import com.hmdp.service.IUserService;
 import com.hmdp.utils.RedisConstants;
 import com.hmdp.utils.RegexUtils;
 import com.hmdp.utils.UserHolder;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -107,5 +109,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         int dayOfMonth = now.getDayOfMonth();
         stringRedisTemplate.opsForValue().setBit(key, dayOfMonth - 1, true);
         return Result.ok();
+    }
+
+    @Override
+    public Result signCount() {
+        //1.获取当前用户
+        Long userId = UserHolder.getUser().getId();
+        //2.获取日期
+        LocalDateTime now = LocalDateTime.now();
+        String format = now.format(DateTimeFormatter.ofPattern(":yyyy:MM"));
+        String key = RedisConstants.USER_SIGN_KEY + userId + format;
+        int dayOfMonth = now.getDayOfMonth();
+        List<Long> result = stringRedisTemplate
+                .opsForValue().bitField(key,
+                        BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.unsigned(dayOfMonth))
+                                .valueAt(0));
+        if (result == null || result.isEmpty()) {
+            return Result.ok(0);
+        }
+        long signCount = result.get(0);
+        if (signCount == 0) {
+            return Result.ok(0);
+        }
+        int count = 0;
+        while (true) {
+            if ((signCount & 1) == 0) {
+                break;
+            } else {
+                count++;
+            }
+            signCount = signCount >>> 1;
+        }
+        return Result.ok(count);
     }
 }
